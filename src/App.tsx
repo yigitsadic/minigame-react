@@ -1,24 +1,32 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from 'react';
 
-function App() {
+import { w3cwebsocket as W3CWebSocket } from "websocket";
+import { MiniGameEvent } from './common/types';
+
+import Messages from './Components/Messages';
+
+const client = new W3CWebSocket('ws://localhost:9090/ws');
+
+const App: React.FC = () => {
+  const [events, setEvents] = useState<MiniGameEvent[]>([]);
+
+  useEffect(() => {
+    client.onmessage = (message) => {
+      const d = JSON.parse(message.data as string) as MiniGameEvent;
+
+      const newMessages = [...events, d];
+
+      setEvents(newMessages);
+    }
+  }, [events]);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h2>Example App</h2>
+
+      <hr />
+
+      <Messages events={events} />
     </div>
   );
 }
